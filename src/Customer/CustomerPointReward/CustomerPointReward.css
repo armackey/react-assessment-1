@@ -1,0 +1,5 @@
+
+.point-reward-container {
+  display: flex;
+  justify-content: space-between;
+}
