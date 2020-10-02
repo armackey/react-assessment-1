@@ -31,7 +31,7 @@ class CustomerPointRewardFactory {
           date: { this.readableDate(date) }
         </div>        
         <div className="price">
-          order price: { price }
+          order price: ${ price }.00
         </div>
         <div className="points">
           points: { points }

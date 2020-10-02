@@ -1,12 +1,10 @@
-import React, { ReactElement, useContext } from "react";
-import { CustomerRewardList, IPurchase } from "../../shared/interfaces";
-import { CustomerListContext } from "../../state/Context";
+import React, { ReactElement } from "react";
+import { IPurchase } from "../../shared/interfaces";
 import { CustomerPointReward } from "../CustomerPointReward/CustomerPointReward";
 import './CustomerPointRewardList.css';
 
 export const CustomerPointRewardList = (props: { purchases: IPurchase[] }) => {
-  const { state, dispatch } = useContext(CustomerListContext);
-  const CPRL = new CustomerPointRewardListFactory(props, state, dispatch);
+  const CPRL = new CustomerPointRewardListFactory(props);
   const RenderedUI = CPRL.render();
 
   return <>{ RenderedUI }</>;
@@ -14,21 +12,20 @@ export const CustomerPointRewardList = (props: { purchases: IPurchase[] }) => {
 
 class CustomerPointRewardListFactory {
   constructor(
-    private props: { purchases: IPurchase[] },
-    private state: CustomerRewardList,
-    private dispatch: Function
+    private props: { purchases: IPurchase[] }
   ) { }
 
   render(): ReactElement {
     const { purchases } = this.props;
     const RewardItemCollection = purchases.map((item: IPurchase, index: number) => (
-      <CustomerPointReward
-        key={ index }
-        price={ item.price } 
-        date={ item.date } 
-        points={ item.points } />
+      <div className="monthly-purchase" key={ index }>
+        <CustomerPointReward
+          price={ item.price }
+          date={ item.date }
+          points={ item.points } />
+      </div>
     ));
-
+    
     return (
       <div className="entry">
         { RewardItemCollection }

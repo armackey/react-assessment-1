@@ -1,4 +1,4 @@
-import { subDays } from 'date-fns';
+import { subDays, getTime, getMonth } from 'date-fns';
 
 const names = [
   'Bruce Wayne', 
@@ -19,32 +19,6 @@ class Base {
   }
 }
 
-export class Customer extends Base {
-  name: string = '';
-  purchases: Purchase[] = [];
-
-  constructor() {
-    super();
-    const amountOfPurchases = this.randomNumber(90);
-    this.name = this.createName(names.length - 1);
-    this.purchases = this.setPurchaseList(amountOfPurchases);
-  }
-
-  private setPurchaseList(amount: number): Purchase[] {
-    const pList: Purchase[] = [];
-    while (amount) {
-      pList.push(new Purchase());
-      amount--;
-    }
-
-    return pList;
-  }
-
-  private createName(n: number): string {
-    return names[this.randomNumber(n)];
-  }
-}
-
 export class Purchase extends Base {
   price: number = 0;
   points: number = 0;
@@ -53,15 +27,16 @@ export class Purchase extends Base {
   constructor() {
     super();
     this.price = this.randomNumber(500);
-    this.points = this.altCalc(this.price);
+    this.points = this.pointCalculation(this.price);
     this.date = this.createDate();
   }
-  
-  // could be consolidated to one liner but it's easier to read with if statements
+
   private createDate(): Date {
     return subDays(this.date, this.randomNumber(90));
   }
-  private altCalc(price: number) {
+
+  // could be consolidated to one liner but it's easier to read with if statements
+  private pointCalculation(price: number) {
     let points = 0;
     if (price > 50 && price <= 100) {
       points = price - 50;
@@ -71,25 +46,71 @@ export class Purchase extends Base {
     }
     return points;
   }
-
-  private pointCalculation(price: number): number {
-    let points = 0;
-    let count = 0;
-
-    if (price < 50) return 0;
-
-    while (count !== price) {
-      count++;
-      if (count > 100) {
-        points += 2;
-      }
-      if (count > 50 && count <= 100) { 
-        points += 1;
-      }
-    }
-
-    return points;
-  }
 }
 
 
+class Month {
+  id: number | null = null;
+  totalPoints: number = 0;
+  purchases: Purchase[] = [];
+
+  constructor(private date: Date) {
+    this.id = getMonth(date);
+  }
+  addPoints(points: number): void {
+    this.totalPoints += points;
+  }
+  addPurchase(item: Purchase) {
+    this.purchases = [ ...this.purchases, item ];
+  }
+}
+
+export class Customer extends Base {
+  name: string = '';
+  months: Month[] = [];
+  totalPoints: number = 0;
+
+  constructor() {
+    super();
+    const amountOfPurchases = this.randomNumber(40);
+    this.name = this.createName(names.length - 1);
+    const purchases = this.setPurchaseList(amountOfPurchases);
+    purchases.map(p => {
+      const month = new Month(p.date);
+      const foundMonth = this.findMonth(month);
+      if (!foundMonth) {
+        month.addPoints(p.points);
+        month.addPurchase(p);
+        this.months.push(month);
+      } else {
+        
+        foundMonth.addPoints(p.points);
+        foundMonth.addPurchase(p);
+      }
+    });
+    this.totalPoints = this.months.reduce((prev, curr) => (prev + curr.totalPoints), 0);
+  }
+
+  private findMonth(month: Month): Month | undefined {
+    return this.months.find(m => m.id === month.id);
+  }
+
+  private sortByDate(purchases: Purchase[]): Purchase[] {
+    const list = purchases.sort((a, b) => getTime(a.date) - getTime(b.date));
+    return list;
+  }
+
+  private setPurchaseList(amount: number): Purchase[] {
+    const pList: Purchase[] = [];
+    while (amount) {
+      pList.push(new Purchase());
+      amount--;
+    }
+
+    return this.sortByDate(pList);
+  }
+
+  private createName(n: number): string {
+    return names[this.randomNumber(n)];
+  }
+}

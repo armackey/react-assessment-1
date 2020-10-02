@@ -5,10 +5,16 @@ export interface IPurchase {
   date: Date;
   points: number;
 }
+export interface IMonth {
+  id: number | null;
+  totalPoints: number;
+  purchases: IPurchase[];
+}
 
 export interface ICustomer {
-  name: string;
-  purchases: IPurchase[];
+  name: string;  
+  months: IMonth[];
+  totalPoints: number;
 }
 
 export interface CustomerRewardList {

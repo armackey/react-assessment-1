@@ -1,12 +1,12 @@
 import React, { ReactElement, useContext } from 'react';
 import { CustomerRewardList, ICustomer } from '../shared/interfaces';
 import { CustomerListContext } from '../state/Context';
-import { CustomerPointRewardList } from './CustomerPointRewardList/CustomerPointRewardList';
 import './Customer.css';
+import { CustomerMonthlyPurchase } from './CustomerMonthlyPurchase/CustomerMonthlyPuchase';
 
 export const CustomerComponent = () => {
-  const { state, dispatch } = useContext(CustomerListContext);
-  const CF = new CustomerFactory(state, dispatch);
+  const { state } = useContext(CustomerListContext);
+  const CF = new CustomerFactory(state);
   const RenderedUI = CF.render();
 
   return <>{ RenderedUI }</>;
@@ -14,8 +14,7 @@ export const CustomerComponent = () => {
 
 class CustomerFactory {
   constructor(
-    private state: CustomerRewardList,
-    private dispatch: Function
+    private state: CustomerRewardList
   ) { }
 
   render(): ReactElement {
@@ -25,7 +24,10 @@ class CustomerFactory {
           <div className="name">
             { customer.name }
           </div>
-          <CustomerPointRewardList purchases={ customer.purchases } />
+          <CustomerMonthlyPurchase months={ customer.months } />
+          <div className="total">
+           total: { customer.totalPoints }
+          </div>
         </div>
     ));
     return <>{ CustomerCollection }</>;
